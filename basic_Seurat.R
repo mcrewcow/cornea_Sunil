@@ -36,7 +36,7 @@ data_dir <- 'C://Users/rodri/Downloads/GSM6735065'
 list.files(data_dir)
 D59fetal <- Read10X(data.dir = data_dir)
 D59fetalS = CreateSeuratObject(counts = D59fetal)
-D59fetalS = CreateSeuratObject(counts = D59fetal, min.cells = 200, min.features = 200)
+D59fetalS = CreateSeuratObject(counts = D59fetal, min.cells = 200, min.features = 200) #some datasets have cell ranger output non-filtered data submitted that results in millions of cells.
 
 D59fetalS[["percent.rb"]] <- PercentageFeatureSet(D59fetalS, pattern = "^RPS|^RPL|^MRPS|^MRPL", assay = 'RNA') #change to uppercase for human
 D59fetalS[["percent.mt"]] <- PercentageFeatureSet(D59fetalS, pattern = "^MT-") #change to uppercase for human

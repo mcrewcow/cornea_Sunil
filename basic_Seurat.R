@@ -32,19 +32,25 @@ ProcessSeu <- function(Seurat){
   return (Seurat)
 }
 
-data_dir <- 'C://Users/rodri/Downloads/GSM###'
+data_dir <- 'C://Users/rodri/Downloads/GSM6735065'
 list.files(data_dir)
 D59fetal <- Read10X(data.dir = data_dir)
 D59fetalS = CreateSeuratObject(counts = D59fetal)
+D59fetalS = CreateSeuratObject(counts = D59fetal, min.cells = 200, min.features = 200)
 
-D59fetalS[["percent.rb"]] <- PercentageFeatureSet(D59fetalS, pattern = "^Rps|^Rpl|^Mrps|^Mrpl", assay = 'RNA') #change to uppercase for human
-D59fetalS[["percent.mt"]] <- PercentageFeatureSet(D59fetalS, pattern = "^mt-") #change to uppercase for human
-D59fetalS <- CellCycleScoring(D59fetalS, s.features = m.s.genes, g2m.features = m.g2m.genes, set.ident = FALSE) #remove 'm.' if operating with human data
+D59fetalS[["percent.rb"]] <- PercentageFeatureSet(D59fetalS, pattern = "^RPS|^RPL|^MRPS|^MRPL", assay = 'RNA') #change to uppercase for human
+D59fetalS[["percent.mt"]] <- PercentageFeatureSet(D59fetalS, pattern = "^MT-") #change to uppercase for human
+D59fetalS <- CellCycleScoring(D59fetalS, s.features = s.genes, g2m.features = g2m.genes, set.ident = FALSE) #remove 'm.' if operating with human data
 VlnPlot(D59fetalS, features = c("nFeature_RNA", "nCount_RNA", "percent.mt", 'percent.rb'), ncol = 4)
-D59fetalS <- subset(D59fetalS, subset = nCount_RNA > 300 & nCount_RNA < 40000 & nFeature_RNA > 300 & nFeature_RNA < 6000 & percent.mt < 30 & percent.rb < 40)
+D59fetalS <- subset(D59fetalS, subset = nCount_RNA > 300 & nCount_RNA < 50000 & nFeature_RNA > 300 & nFeature_RNA < 6500 & percent.mt < 30 & percent.rb < 40)
 
 D59fetalS <- ProcessSeu(D59fetalS)
 D59fetalS <- RDoublet(D59fetalS)
 D59fetalS <- subset(D59fetalS, cells = colnames(D59fetalS )[which(D59fetalS [[]][12] == 'Singlet')])
 D59fetalS <- subset(D59fetalS , cells = colnames(D59fetalS )[which(D59fetalS [[]][13] == 'Singlet')])
 D59fetalS <- ProcessSeu(D59fetalS)
+DimPlot(D59fetalS)
+D59fetalS$GSM <-  'GSM6735065'
+D59fetalS$GSE <- 'GSE218123'
+SaveH5Seurat(D59fetalS, 'C://Users/rodri/Downloads/GSE218123_GSM6735065.h5Seurat', overwrite = TRUE)
+saveRDS(D59fetalS, 'C://Users/rodri/Downloads/GSE218123_GSM6735065.rds')
